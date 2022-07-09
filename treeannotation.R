@@ -8,6 +8,66 @@ annotate_tree <- function(tree, start, expand, threshold) {
   tree
 }
 
+
+annotate_org_tree <- function(org_tree, org_data, paralogs) {
+  names(org_data)[1] <- 'label'  # could I have left it as 'id'???
+  org_data$label <- as.character(org_data$label)
+  org_data[org_data$label == '1', 'label'] <- ''  # WHY???
+  
+  # org_tree annotated with org_data
+  org_data <- org_data[org_data$label %in% as_tibble(org_tree)$label, ]
+  org_tree_a <- full_join(org_tree, org_data, by='label')
+  
+  tab_org_tree <- as_tibble(org_tree_a)
+  
+  # tt2 -- annotation assignment dataframe: label - paralog1 ... paralogN; counts
+  View(org_data)
+  View(tab_org_tree)
+  View(paralogs)
+  print(class(tab_org_tree$label))
+  print(class(paralogs$label))
+  
+  paralogs <- paralogs[paralogs$label %in% tab_org_tree$label, ]
+  
+  tt2 <- tab_org_tree
+  tt2 <- full_join(tt2, paralogs, by='label', na=0)
+  tt2 <- tt2[!is.na(tt2$node), ]
+  View(tt2)
+  
+  tt2 <- tt2 %>% mutate(across(-1:-6, ~ ifelse(rank == 'species' & is.na(.x), 0, .x)))
+  tt2 <- tt2[c(-1, -3:-6)]
+  
+  View(tt2)
+  
+  org_tree_a <- full_join(org_tree_a, tt2, by='node')
+  tab_org_tree <- as_tibble(org_tree_a)
+  
+  tab_org_tree2 <- traverse_mean(tab_org_tree)
+  
+  org_tree2 <- full_join(org_tree, tab_org_tree2)
+  
+  org_tree2
+}
+
+
+copy_annotation <- function(org_tree_prunned, org_tree_full_a) {
+  tab_org_tree_full <- as_tibble(org_tree_full_a)
+  View(tab_org_tree_full)
+  
+  View(as_tibble(org_tree_prunned))
+  
+  assigniment_tabtree <- tab_org_tree_full[tab_org_tree_full$label %in% as_tibble(org_tree_prunned)$label, -c(1,2,3)]
+  
+  View(assigniment_tabtree)
+  
+  org_tree_prunned2 <- full_join(org_tree_prunned, assigniment_tabtree, by='label')
+  
+  View(as_tibble(org_tree_prunned2))
+  
+  org_tree_prunned2
+}
+
+
 assign_full_taxonomy <- function(tree, csv) {
   tree <- assign_taxonomy(tree, csv, "phylum")
   tree <- assign_taxonomy(tree, csv, "class")
@@ -591,66 +651,25 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
 
 
 
-plot_org_tree <- function(tree, tree_a,
+plot_org_tree <- function(tree,
                           layout='rectangular', branch_length='none',
                           collapse = NA,
                           width=100, height=100, legend='left',
                           filename='org_tree.svg') {
-  View(tree)
-  print(class(tree))
+  # prepare heatmap data
+  data_heatmap <- data.frame(
+    as_tibble(tree)[, c(-1, -3:-6)]
+  )  # node, c(paralogs)
   
-  tab_tree_a <- as_tibble(tree_a)
+  data_heatmap <- data.frame(
+    as_tibble(tree)[, c(-1:-3, -5:-6)]
+  )  # node, c(paralogs)
   
-  if (!is.na(collapse)) {
-    
-    to_drop <- tab_tree_a[tab_tree_a$rank == 'species',]$label
-    print(to_drop)
-    print(class(to_drop))
-    
-    print(class(tree))
-    tree <- drop.tip(tree, to_drop)
-    print(class(tree))
-    print('collapsed species')
-    
-    if(collapse != 'species') {
-      to_drop <- tab_tree_a[tab_tree_a$rank == 'genus',]$label
-      tree <- drop.tip(tree, to_drop)
-      
-      print('collapsed genus')
-      
-      if(collapse != 'genus') {
-        to_drop <- tab_tree_a[tab_tree_a$rank == 'family',]$label
-        tree <- drop.tip(tree, to_drop)
-        
-        print('collapsed family')
-        
-        if(collapse != 'family') {
-          to_drop <- tab_tree_a[tab_tree_a$rank == 'order',]$label
-          tree <- drop.tip(tree, to_drop)
-          
-          print('collapsed order')
-          
-          if(collapse != 'order') {
-            to_drop <- tab_tree_a[tab_tree_a$rank == 'class',]$label
-            tree <- drop.tip(tree, to_drop)
-            
-            print('collapsed class')
-          }
-        }
-      }
-      
-    }
-  }
-  print('collapsed')
-  print(class(tree))
+  data_heatmap <- pivot_longer(data_heatmap, -1, names_to='paralog')
   
-  tree_collapsed <- tree
-  View(tree_collapsed)
+  #rownames(data_heatmap) <- data_heatmap$label
   
-  tree <- full_join(tree, tab_tree_a)
-  
-  tree_annotated <- tree
-  View(as_tibble(tree_annotated))
+  #data_heatmap <- data_heatmap[, -1]
   
   # plot tree
   p <- ggtree(tree, aes_string(color='rank'), layout=layout, branch.length=branch_length)
@@ -659,27 +678,22 @@ plot_org_tree <- function(tree, tree_a,
   
   # Apply theme
   p <- p + theme(
-    legend.key.size = unit(1, "cm"),
-    legend.key.width = unit(1,"cm"),
-    legend.text = element_text(size = 24), 
+    legend.key.size = unit(4, "cm"),
+    legend.key.width = unit(4,"cm"),
+    legend.text = element_text(size = 96), 
     legend.position=legend)
   
-  p <- p + geom_text(aes(label=paste(name, node)))
+  p <- p + geom_text2(aes(label=paste(name, node)), size=16) +
+    geom_fruit(data=data_heatmap, geom=geom_tile,
+               mapping=aes(y=label, x=paralog, fill=value),
+               color = "grey50", offset = 0.04,size = 0.02)
   #p <- p + geom_tiplab(label='name')
   
   print('themed')
   
-  data_heatmap <- data.frame(
-    as_tibble(tree)[, c(-1, -3:-6)]
-  )  # node, c(paralogs)
-  
-  rownames(data_heatmap) <- data_heatmap$node
-  
-  data_heatmap <- data_heatmap[, -1]
-  
-  View(data_heatmap)
-  p <- gheatmap(p, data_heatmap, offset=15, width=.3,
-                colnames_angle=45, colnames_offset_y = .25)
+  #p <- gheatmap(p, data_heatmap, offset=0.5, width=.3,
+  #              colnames_angle=45, colnames_offset_y = .25,
+  #              font.size = 16, colnames_position='top')
   
   print('heatmapped')
   

@@ -9,13 +9,14 @@ init <- function(project) {
   library("gggenes")
   library("ape")
   
-  setwd("K:\\Stepan\\Protein Evolutionary Genomics Pipeline\\tree-annotation")
+  rd = 'C:\\Users\\sovchinn\\Documents\\tmp\\tree-annotation'
+  
+  setwd(rd)
   source('treeannotation.R')
   
-  wd = paste("K:\\Stepan\\Protein Evolutionary Genomics Pipeline\\tree-annotation\\projects",
-             project, sep='\\')
+  wd = paste(rd, "projects", project, sep='\\')
   setwd(wd)
-  print('initialized')
+  print("initialized")
 }
 
 
