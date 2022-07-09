@@ -1,0 +1,85 @@
+taxid;name;rank
+1;root;root
+10239;Viruses;superkingdom
+131567;cellular organisms;species
+2559587;Riboviria;species
+2731342;Monodnaviria;species
+2840056;Naldaviricetes;class
+2732004;Varidnaviria;species
+2731360;Heunggongvirae;kingdom
+2841637;Tokiviricetes;class
+2;Bacteria;superkingdom
+2157;Archaea;superkingdom
+2732396;Orthornavirae;kingdom
+2732514;Revtraviricetes;class
+2732092;Shotokuvirae;kingdom
+2732005;Bamfordvirae;kingdom
+1783272;Terrabacteria group;species
+1224;Proteobacteria;phylum
+1783257;PVC group;species
+40117;Nitrospirae;phylum
+57723;Acidobacteria;phylum
+74152;Elusimicrobia;phylum
+203692;Spirochaetia;class
+188708;Thermotogae;class
+187857;Aquificae;class
+68336;Bacteroidetes/Chlorobi group;species
+28890;Euryarchaeota;phylum
+1783275;TACK group;species
+2283796;Candidatus Thermoplasmatota;phylum
+2732408;Pisuviricota;phylum
+2732405;Duplornaviricota;phylum
+2732406;Kitrinoviricota;phylum
+2497569;Negarnaviricota;phylum
+2732407;Lenarviricota;phylum
+2732416;Cressdnaviricota;phylum
+2732415;Cossaviricota;phylum
+2732007;Nucleocytoviricota;phylum
+2732008;Preplasmiviricota;phylum
+201174;Actinobacteria;phylum
+1239;Firmicutes;phylum
+544448;Tenericutes;phylum
+200795;Chloroflexi;phylum
+188787;Deinococci;class
+1117;Cyanobacteria;phylum
+1236;Gammaproteobacteria;class
+28211;Alphaproteobacteria;class
+68525;delta/epsilon subdivisions;species
+28216;Betaproteobacteria;class
+1553900;Oligoflexia;class
+203682;Planctomycetes;phylum
+74201;Verrucomicrobia;phylum
+204429;Chlamydiia;class
+204432;Acidobacteriia;class
+976;Bacteroidetes;phylum
+183963;Halobacteria;class
+224756;Methanomicrobia;class
+651137;Thaumarchaeota;phylum
+183924;Thermoprotei;class
+183967;Thermoplasmata;class
+2732506;Pisoniviricetes;class
+2732507;Stelpaviricetes;class
+2732461;Alsuviricetes;class
+2497574;Monjiviricetes;class
+2732423;Arfiviricetes;class
+2732421;Papovaviricetes;class
+2732523;Megaviricetes;class
+2732525;Pokkesviricetes;class
+2732529;Tectiliviricetes;class
+1760;Actinomycetia;class
+84998;Coriobacteriia;class
+908620;Nitriliruptoria;class
+91061;Bacilli;class
+186801;Clostridia;class
+1737404;Tissierellia;class
+909932;Negativicutes;class
+31969;Mollicutes;class
+301297;Dehalococcoidia;class
+189775;Thermomicrobia;class
+28221;Deltaproteobacteria;class
+29547;Epsilonproteobacteria;class
+203683;Planctomycetia;class
+666505;Phycisphaerae;class
+414999;Opitutae;class
+200643;Bacteroidia;class
+1643678;Nitrososphaeria;class

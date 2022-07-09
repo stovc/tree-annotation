@@ -1,0 +1,39 @@
+taxid;name;rank
+1;root;root
+10239;Viruses;superkingdom
+131567;cellular organisms;species
+2559587;Riboviria;species
+2731342;Monodnaviria;species
+2732004;Varidnaviria;species
+2731360;Heunggongvirae;kingdom
+2;Bacteria;superkingdom
+2157;Archaea;superkingdom
+2732396;Orthornavirae;kingdom
+2732092;Shotokuvirae;kingdom
+2732005;Bamfordvirae;kingdom
+1783272;Terrabacteria group;species
+1224;Proteobacteria;phylum
+1783257;PVC group;species
+40117;Nitrospirae;phylum
+57723;Acidobacteria;phylum
+74152;Elusimicrobia;phylum
+976;Bacteroidetes;phylum
+28890;Euryarchaeota;phylum
+2283796;Candidatus Thermoplasmatota;phylum
+651137;Thaumarchaeota;phylum
+2732408;Pisuviricota;phylum
+2732405;Duplornaviricota;phylum
+2732406;Kitrinoviricota;phylum
+2497569;Negarnaviricota;phylum
+2732407;Lenarviricota;phylum
+2732416;Cressdnaviricota;phylum
+2732415;Cossaviricota;phylum
+2732007;Nucleocytoviricota;phylum
+2732008;Preplasmiviricota;phylum
+201174;Actinobacteria;phylum
+1239;Firmicutes;phylum
+544448;Tenericutes;phylum
+200795;Chloroflexi;phylum
+1117;Cyanobacteria;phylum
+203682;Planctomycetes;phylum
+74201;Verrucomicrobia;phylum
