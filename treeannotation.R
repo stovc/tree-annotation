@@ -665,7 +665,13 @@ plot_org_tree <- function(tree,
     as_tibble(tree)[, c(-1:-3, -5:-6)]
   )  # node, c(paralogs)
   
+  data_heatmap2 <- data_heatmap 
+  View(data_heatmap2)
+  
   data_heatmap <- pivot_longer(data_heatmap, -1, names_to='paralog')
+  data_heatmap <- data_heatmap[is.na(data_heatmap$value) == F,]
+  
+  View(data_heatmap)
   
   #rownames(data_heatmap) <- data_heatmap$label
   
@@ -684,9 +690,11 @@ plot_org_tree <- function(tree,
     legend.position=legend)
   
   p <- p + geom_text2(aes(label=paste(name, node)), size=16) +
-    geom_fruit(data=data_heatmap, geom=geom_tile,
-               mapping=aes(y=label, x=paralog, fill=value),
-               color = "grey50", offset = 0.04,size = 0.02)
+    #geom_fruit(data=data_heatmap, geom=geom_tile,
+    #           mapping=aes(y=label, x=paralog, fill=value),
+    #           color = "grey50", offset = 0.04,size = 0.02) +
+    geom_fruit(data=data_heatmap, geom=geom_text,
+               mapping=aes(label=value))
   #p <- p + geom_tiplab(label='name')
   
   print('themed')

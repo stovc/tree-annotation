@@ -8,6 +8,7 @@ init <- function(project) {
   library("ggtree")
   library("gggenes")
   library("ape")
+  library(ggtreeExtra)
   
   rd = 'C:\\Users\\sovchinn\\Documents\\tmp\\tree-annotation'
   
