@@ -1,3 +1,14 @@
+library(tidyr)
+library(dplyr)
+library(readr)
+library(data.table)
+library("ggplot2")
+library("treeio")
+library("ggtree")
+library("gggenes")
+library("ape")
+library(ggtreeExtra)
+
 annotate_tree <- function(tree, start, expand, threshold) {
   
   tree <- assign_tax(tree, start, expand)
@@ -651,57 +662,57 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
 
 
 
-plot_org_tree <- function(tree,
-                          layout='rectangular', branch_length='none',
-                          collapse = NA,
-                          width=100, height=100, legend='left',
+plot_org_tree <- function(tree, levels,
+                          width=100, height=100, legend='right',
                           filename='org_tree.svg') {
   # prepare heatmap data
-  data_heatmap <- data.frame(
-    as_tibble(tree)[, c(-1, -3:-6)]
-  )  # node, c(paralogs)
+  tab_tree <- as_tibble(tree)
   
-  data_heatmap <- data.frame(
-    as_tibble(tree)[, c(-1:-3, -5:-6)]
-  )  # node, c(paralogs)
+  data_heatmap <- tibble(
+    tab_tree[, c(-3, -5:-6)]
+  )  # parent, node, label, c(paralogs)
   
-  data_heatmap2 <- data_heatmap 
-  View(data_heatmap2)
+  data_heatmap <- data_heatmap[!(data_heatmap$node %in% tab_tree$parent), ]
+  
+  data_heatmap <- data_heatmap[, c(-1, -2)]
   
   data_heatmap <- pivot_longer(data_heatmap, -1, names_to='paralog')
   data_heatmap <- data_heatmap[is.na(data_heatmap$value) == F,]
   
-  View(data_heatmap)
-  
-  #rownames(data_heatmap) <- data_heatmap$label
-  
-  #data_heatmap <- data_heatmap[, -1]
-  
   # plot tree
-  p <- ggtree(tree, aes_string(color='rank'), layout=layout, branch.length=branch_length)
+  p <- ggtree(tree, aes_string(color='rank'), layout='rectangular', branch.length='none')
   
   print('constructed')
   
   # Apply theme
-  p <- p + theme(
-    legend.key.size = unit(4, "cm"),
-    legend.key.width = unit(4,"cm"),
-    legend.text = element_text(size = 96), 
-    legend.position=legend)
+
+  data_heatmap$x = unclass(factor(data_heatmap$paralog, levels=levels))
+  mapping <- data_heatmap[duplicated(data_heatmap$paralog) == F, ]
   
-  p <- p + geom_text2(aes(label=paste(name, node)), size=16) +
-    #geom_fruit(data=data_heatmap, geom=geom_tile,
-    #           mapping=aes(y=label, x=paralog, fill=value),
-    #           color = "grey50", offset = 0.04,size = 0.02) +
-    geom_fruit(data=data_heatmap, geom=geom_text,
-               mapping=aes(label=value))
+  y <- max(p$data$y)
+  
+  p <- p + geom_text2(aes(label=paste(name)), size=4) +
+    geom_facet(data = data_heatmap, geom = geom_tile,
+               mapping = aes(x=x, fill=value),
+               colour='black',
+               panel = 'Paralogs') +
+    geom_facet(data = data_heatmap, geom = geom_text,
+               mapping = aes(x=x, label=round(value,1)),
+               colour='white', size=4,
+               panel = 'Paralogs') +
+    geom_facet(data = mapping, geom = geom_text,
+               mapping = aes(x=x, y=0, label=paralog),
+               colour='black', size=4,
+               panel = 'Paralogs')
   #p <- p + geom_tiplab(label='name')
-  
+
+  p <- p + theme(
+    legend.key.size = unit(1, "cm"),
+    legend.key.width = unit(1, "cm"),
+    legend.text = element_text(size = 12), 
+    legend.position=legend) + scale_x_ggtree()
+    
   print('themed')
-  
-  #p <- gheatmap(p, data_heatmap, offset=0.5, width=.3,
-  #              colnames_angle=45, colnames_offset_y = .25,
-  #              font.size = 16, colnames_position='top')
   
   print('heatmapped')
   

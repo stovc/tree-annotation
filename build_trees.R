@@ -1,15 +1,5 @@
 init <- function(project) {
-  library(tidyr)
-  library(dplyr)
-  library(readr)
-  library(data.table)
-  library("ggplot2")
-  library("treeio")
-  library("ggtree")
-  library("gggenes")
-  library("ape")
-  library(ggtreeExtra)
-  
+
   rd = 'C:\\Users\\sovchinn\\Documents\\tmp\\tree-annotation'
   
   setwd(rd)
@@ -67,7 +57,7 @@ org_data_order <- read_delim("org_tree\\org_tree_order_data.csv", delim=';')
 org_tree_class <- read.tree(file="org_tree\\org_tree_class.nwk")
 org_data_class <- read_delim("org_tree\\org_tree_class_data.csv", delim=';')
 
-org_tree_phylum <- read.tree(file="org_tree\\org_tree_order.nwk")
+org_tree_phylum <- read.tree(file="org_tree\\org_tree_phylum.nwk")
 org_data_phylum <- read_delim("org_tree\\org_tree_phylum_data.csv", delim=';')
 
 ######################
@@ -102,7 +92,7 @@ tree_cyan <- annotate_tree(
 # which node of the protein tree correspond to a branch of which paralog
 paralog_df = data.frame(
   node    = c(5472,    5951,     6160,     6932,    6936,     7182,      9439,    9595,     9522,     9440,     9740,     9732,    9830 ), 
-  paralog = c("ClpP1", "ClpP1'", "ClpP1'", "ClpP2", "ClpP2'", "ClpP2''", "cClpP", "cClpP1", "cClpP2", "cClpP3", "cClpP4", "cClpP5", "ncClpP")
+  paralog = c("ClpP1", "ClpP1*", "ClpP1*", "ClpP2", "ClpP2*", "ClpP2**", "cClpP", "cClpP1", "cClpP2", "cClpP3", "cClpP4", "cClpP5", "ncClpP")
 )
 
 # add the paralog data on the annatated tree. 2nd argument stands fot the basic paralog name
@@ -178,11 +168,10 @@ plot_tree(tree_cyan, "rectangular", "none", collapse="Cyanobacteria",
 
 # orgtree
 plot_org_tree(org_tree_family_a,
-              collapse=NA, width=250, height=500,
+              collapse=NA, width=100, height=150,
               filename='org_tree_fam.svg')
 
-plot_org_tree(org_tree_phylum_a,
-              collapse=NA, width=250, height=300,
+plot_org_tree(org_tree_phylum_a, width=50, height=30,
               filename='org_tree_phy.svg')
 
 plot_org_tree(org_tree, org_tree2,
