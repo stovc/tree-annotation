@@ -741,9 +741,13 @@ plot_org_tree <- function(tree, levels,
     geom_facet(data = mapping, geom = geom_text,
                mapping = aes(x=x, y=0, label=paralog),
                colour='black', size=4,
-               panel = 'Paralogs')
-  #p <- p + geom_tiplab(label='name')
-
+               panel = 'Paralogs') +
+    scale_fill_viridis_c(option="turbo") +
+    scale_size_manual(values=size_scale) +
+    scale_color_manual(values=color_scale)
+  
+  p <- p + geom_tiplab(aes(label=name)) + xlim_tree(5)
+  
   p <- p + theme(
     legend.key.size = unit(1, "cm"),
     legend.key.width = unit(1, "cm"),
@@ -754,7 +758,7 @@ plot_org_tree <- function(tree, levels,
   
   print('heatmapped')
   
-  print(p)
+  facet_widths(p, widths=c(4,1))
   
   print('printed')
   
