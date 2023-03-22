@@ -41,9 +41,9 @@ annotate_org_tree <- function(org_tree, org_data, paralogs) {
   paralogs <- paralogs[paralogs$label %in% tab_org_tree$label, ]
   
   tt2 <- tab_org_tree
-  tt2 <- full_join(tt2, paralogs, by='label', na=0)
+  tt2 <- full_join(tt2, paralogs, by='label')
   tt2 <- tt2[!is.na(tt2$node), ]
-  View(tt2)
+  tt2[is.na(tt2)] <- 0
   
   tt2 <- tt2 %>% mutate(across(-1:-6, ~ ifelse(rank == 'species' & is.na(.x), 0, .x)))
   tt2 <- tt2[c(-1, -3:-6)]
