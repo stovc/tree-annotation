@@ -634,31 +634,23 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
     # add taxalink layer
     p <- p + geom_taxalink(data = taxalink_map, 
                            mapping=aes(taxa1=from, taxa2=to, color=filt_tax), 
-                           alpha=0.2, size=0.5, curvature=1, ncp=10) + 
-      coord_cartesian(clip = 'off') + 
-      theme_tree2(plot.margin=unit(c(1,70,1,1), "cm"))
-  }
-  
-  # Label tips
-  if (!is.na(tips)) {
-    p <- p + geom_tiplab(aes_string(label=tips), size=4, color='black', angle=0, align=TRUE, linesize=.1)
+                           alpha=0.4, size=0.3, curvature=1, ncp=10, outward=F)
   }
   
   # Domain architecture
   if (!is.na(domains)) {
-    p <- p + geom_facet(mapping = aes(xmin = start, xmax = end, fill = domain),
-                        data = domain_data,
+    p <- p + geom_facet(data = domain_data,
+                        mapping = aes(xmin = start, xmax = end, 
+                                      fill = domain),
                         geom = geom_motif,
                         panel = 'Domains',
                         on = domains, label = 'domain', align = 'left',
                         arrowhead_width = grid::unit(0, "mm"),
-                        arrow_body_height = grid::unit(3, "mm"),
-                        arrowhead_height = grid::unit(3, "mm")) + 
-      coord_cartesian(clip = 'off') + 
-      theme_tree2(plot.margin=unit(c(1,70,1,1), "cm"))
+                        arrowhead_height = grid::unit(3, "mm")) +
+      xlim_tree(100)
   }
   
-  # genomic context
+  # genome context
   if (!is.na(context)) {
     p <- p + geom_facet(data = context_data,
                         mapping = aes(xmin = start, xmax = end, 
@@ -669,16 +661,17 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
                         arrowhead_width = grid::unit(3, "mm"),
                         arrow_body_height = grid::unit(3, "mm"),
                         arrowhead_height = grid::unit(3, "mm")) + 
-      coord_cartesian(clip = 'off') + 
-      theme_tree2(plot.margin=unit(c(1,70,1,1), "cm"))
+      xlim_tree(100)
   }
   
-  # Apply theme
-  p <- p + theme(
-    legend.key.size = unit(2, "cm"),
-    legend.key.width = unit(1.5,"cm"),
-    legend.text = element_text(size = 48), 
-    legend.position=legend)
+  # Legend
+  #p <- p + theme(                This works when you have ~5000 tips
+  #  legend.key.size = unit(2, "cm"),
+  #  legend.key.width = unit(1.5,"cm"),
+  #  legend.text = element_text(size = 16), 
+  #  legend.position=legend)
+  
+  p <- p + theme(legend.position=legend)
   
   if (is.na(domains) & is.na(context)) {
     print('printing plot')
@@ -686,6 +679,7 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
   }
   else {
     print('printing facets')
+    
     facet_widths(p, widths=c(1,3))
   }
   
