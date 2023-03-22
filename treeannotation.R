@@ -721,7 +721,15 @@ plot_org_tree <- function(tree, levels,
   
   y <- max(p$data$y)
   
-  p <- p + geom_text2(aes(label=paste(name)), size=4) +
+  # geom_text2(aes(label=paste(name)), size=4)
+  
+  size_scale = c(18, 14, 10, 7, 5, 3, 2)
+  names(size_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
+  
+  color_scale = c("darkred", "darkorange", "yellow4", "darkgreen", "darkcyan", "darkblue", "darkviolet")
+  names(color_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
+  
+  p <- p + geom_label2(aes(subset=!isTip, label=name, size=rank), fill='grey95') +
     geom_facet(data = data_heatmap, geom = geom_tile,
                mapping = aes(x=x, fill=value),
                colour='black',
