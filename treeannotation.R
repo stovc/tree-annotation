@@ -460,19 +460,19 @@ traverse_property <- function(tree, df, taxon, recursive = T) {
 ##########################################
 
 plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
-                      taxalink=F, tips=NA, label_nodes=F, label_ancectors=NA, 
+                      taxalink=F, tips=NA, label_nodes=F, circle=NA, label_ancectors=NA, 
                       collapse=NA, clade_labels=NA, 
                       domains=NA, context=NA,
-                      width=250, height=1800, legend="left",
+                      width=100, height=100, legend="left",
                       filename="tree.pdf") {
   
   COLOR_VECT = c("red", "#3cb44b", "blue",              # red green blue
-                 "orange", "#ffe119", "lawngreen",      # orange yellow lime
+                 "orange", "#808000", "lawngreen",      # orange olive lime
                  "#42d4f4", "#911eb4", "#f032e6",       # cyan purple magenta
-                 "darkred", "#469990", "navy",          # maroon teal navy
-                 "#9A6324", "#808000", "#fabed4",       # brown olive pink
+                 "#800000", "#469990", "navy",          # maroon teal navy
+                 "#9A6324", "#eedd00", "#fabed4",       # brown yellow pink
                  "#ffd8b1", "#fffac8", "#aaffc3",       # apricot, beige, mint
-                 "#dcbeff", "cornflowerblue", "green",
+                 "#dcbeff", "cornflowerblue", "#bfef45", # lawander --- lime
                  "maroon", "steelblue")                 # lavender, cfb
   
   tab_tree <- as_tibble(tree)  # tabular form of the tree
