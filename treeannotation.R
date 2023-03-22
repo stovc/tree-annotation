@@ -493,22 +493,58 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
   colors = c(COLOR_VECT[1:(n_tax - 2)], 'gray', 'black')
   names(colors) = u_tax
   
-  
   # plot tree
-  p <- ggtree(tree, aes_string(color=aes_color), layout=layout, branch.length=branch_length)
+  if (taxalink == T) {
+    xlim = 150
+  }
+  else {
+    xlim = NULL
+  }
+  
+  p <- ggtree(tree, aes_string(color=aes_color), layout=layout, branch.length=branch_length, xlim=xlim)
   if (aes_color == "filt_tax") {
     p <- p + scale_color_manual(values=colors)
     p <- p + guides(colour = guide_legend(ncol = 1)) + 
-      guides(colour = guide_legend(override.aes = list(size = 20), ncol = 1))
+      guides(colour = guide_legend(ncol = 1))  # guide_legend(override.aes = list(size = 20), ncol = 1)) - like that to make legend elements bigger
     print('MET')
   } else {
     print('NOT MET')
   }
   
-  # technical node labeling
+  # Bootstraps
+  if (circle == "bootstrap") {
+    p <- p + geom_point2(aes(subset=!isTip, 
+                             fill=cut(UFboot, c(0, 70, 90, 100))), 
+                         shape=21, size=2, colour="black") +
+      scale_fill_manual(values=c("white", "grey", "black"), guide='legend', 
+                        name='Bootstrap', 
+                        breaks=c('(90,100]', '(70,90]', '(0,70]'), 
+                        labels=expression(BS>=90,70 <= BS * " < 90", BS < 70))
+  }
+  
+  # Length
+  if (circle == "length") {
+    p <- p + geom_point2(aes(subset=isTip, fill=length), size=4, colour="black", shape=21) +
+      scale_fill_viridis_c()
+  }
+  
+  #p <- p + geom_tippoint(
+  #  aes(
+  #    color = filt_tax, size=factor(length)
+  #    )
+  #  )
+  #geom_label(aes(label = UFboot, fill = UFboot), size=3, color="black")
+  
+  # Label tips
+  if (!is.na(tips)) {
+    #p <- p + geom_tiplab(aes_string(label=tips), color='black', angle=0, align=TRUE, linesize=.1)
+    p <- p + geom_tiplab(aes_string(label=tips), hjust=-.1, size=3, align=T)
+  }
+  
+  # Label nodes
   if (label_nodes == T) {
-    p <- p + geom_text2(aes(subset=!isTip, label=paste(node, as.character(angle))), hjust=-.1, size=1)
-    p <- p + geom_tiplab(hjust=-.1, size=1)
+    p <- p + geom_text2(aes(subset=!isTip, label=node), color='black', hjust=-.1, size=1)
+    #p <- p + geom_tiplab(hjust=-.1, size=1)
   }
   
   # Collapse
