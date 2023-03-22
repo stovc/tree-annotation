@@ -271,7 +271,7 @@ filter_taxonomy <- function(tree, threshold) {
 
 
 read_context_data <- function() {
-  context_data <- read_delim("genomic-context.csv", delim=';')
+  context_data <- read_delim("genome_context.csv", delim=';')
   #context_data <- read.csv("cont.csv")
   
   context_data$start = as.numeric(context_data$start)
