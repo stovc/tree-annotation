@@ -1,32 +1,23 @@
-init <- function(project) {
-
-  rd = 'C:\\Users\\sovchinn\\Documents\\tmp\\tree-annotation'
-  
-  setwd(rd)
-  source('treeannotation.R')
-  
-  wd = paste(rd, "projects", project, sep='\\')
-  setwd(wd)
-  print("initialized")
-}
-
-
 ######################
 #        LOAD
 ######################
 
-init('ClpP')
+
+source('/home/sovchinn/tree-annotation/treeannotation.R')
+
+
+setwd('/home/sovchinn/Documents/tree-analysis/ClpC1_NTD')
+
 
 # load protein tree
-tree <- read.tree(file="tree-nj-rn.nwk")
+tree <- read.iqtree(file="tree.contree")
 
 # load the annotation dataframe
-csv <- read.csv("filtered-clustered.csv")
+csv <- read.csv("filtered_clustered.csv")
 
-# remove duplicates from the dataframe. last time there were no duplicates (ClpP project)
-csv <- csv[!duplicated(csv$ID),]
+# csv <- csv[!duplicated(csv$ID),] - remove duplicates by ID. don't use this step. might be useful for debugging later
 
-# load the annotation data of filtered but not clustered hits (for the bacterial tree with phyletic pattern)
+# load the annotation data of filtered bu t not clustered hits (for the bacterial tree with phyletic pattern)
 filtered_data <- read.csv("filtered_hits.csv")[, c('ID', 'assembly', 'taxid')]
 
 # load the cluster data. which protein inherits properties from which representative
