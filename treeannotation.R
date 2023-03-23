@@ -9,7 +9,8 @@ library("gggenes")
 library("ape")
 library(ggtreeExtra)
 
-annotate_tree <- function(tree, start, expand, threshold) {
+
+annotate_tree <- function(tree, start, expand, threshold=1) {
   
   tree <- assign_tax(tree, start, expand)
   
@@ -20,35 +21,64 @@ annotate_tree <- function(tree, start, expand, threshold) {
 }
 
 
-annotate_org_tree <- function(org_tree, org_data, paralogs) {
+annotate_org_tree <- function(org_tree, org_data, prot_tree) {
+  
+  # PART I - MAKE PARALOG ASSIGNMENT DF
+  
+  # add the paralog data on the annotated tree. 2nd argument stands for the basic paralog name
+  # annotated tree is needed to make a list of paralogs
+  
+  tab_tree_par = as_tibble(prot_tree) # and get it in the tabular form
+  
+  # form the list of paralog values of the clustered proteins and their taxid numbers to annotate the species tree
+  paralogs = tab_tree_par[!is.na(tab_tree_par$taxid), c('label', 'taxid', 'paralog')]
+  paralogs$representative = paralogs$label
+  
+  # paralogs + cluster data -> paralogs_all_nodes
+  paralogs_representative <- full_join(cluster_data, paralogs, by='representative')
+  paralogs_representative <- mutate(paralogs_representative, id = ifelse(is.na(id), representative, id)) # why can id be NA???
+  paralogs_representative <- paralogs_representative[!duplicated(paralogs_representative$id),]  # where do duplicates come from?
+  paralogs_representative <- paralogs_representative[, c('id', 'paralog')]
+  names(paralogs_representative)[1] <- 'ID'
+  
+  paralogs_all_orgs <- full_join(filtered_data, paralogs_representative, by='ID')
+  paralogs_all_orgs <- paralogs_all_orgs[, c('assembly', 'taxid', 'paralog')]
+  
+  paralogs_counted <- paralogs_all_orgs %>% group_by(assembly, paralog) %>% mutate(count=n())
+  paralogs_counted <- distinct(paralogs_counted)
+  paralogs_counted <- pivot_wider(paralogs_counted, names_from = 'paralog', values_from = 'count')
+  
+  paralogs_counted[is.na(paralogs_counted)] <- 0
+  paralogs_counted <- subset(paralogs_counted, select = -c(assembly))
+  
+  # apparently, I summurize for the case when I have several asssemblies for the same genome (should I better use median?)
+  paralogs_summed <- paralogs_counted %>% group_by(taxid) %>% summarize_all(mean)
+  colnames(paralogs_summed)[1] <- 'label'
+  paralogs_summed$label = as.character(paralogs_summed$label)
+  
+  # PART II - ANNOTATE ORGANISM TREE
+  
+  # reshape org_tree_data df
   names(org_data)[1] <- 'label'  # could I have left it as 'id'???
   org_data$label <- as.character(org_data$label)
   org_data[org_data$label == '1', 'label'] <- ''  # WHY???
   
-  # org_tree annotated with org_data
+  # annotate org_tree with org_data
   org_data <- org_data[org_data$label %in% as_tibble(org_tree)$label, ]
   org_tree_a <- full_join(org_tree, org_data, by='label')
   
   tab_org_tree <- as_tibble(org_tree_a)
   
   # tt2 -- annotation assignment dataframe: label - paralog1 ... paralogN; counts
-  View(org_data)
-  View(tab_org_tree)
-  View(paralogs)
-  print(class(tab_org_tree$label))
-  print(class(paralogs$label))
   
-  paralogs <- paralogs[paralogs$label %in% tab_org_tree$label, ]
+  paralogs_summed <- paralogs_summed[paralogs_summed$label %in% tab_org_tree$label, ]
   
   tt2 <- tab_org_tree
-  tt2 <- full_join(tt2, paralogs, by='label')
+  tt2 <- full_join(tt2, paralogs_summed, by='label')
   tt2 <- tt2[!is.na(tt2$node), ]
-  tt2[is.na(tt2)] <- 0
   
   tt2 <- tt2 %>% mutate(across(-1:-6, ~ ifelse(rank == 'species' & is.na(.x), 0, .x)))
   tt2 <- tt2[c(-1, -3:-6)]
-  
-  View(tt2)
   
   org_tree_a <- full_join(org_tree_a, tt2, by='node')
   tab_org_tree <- as_tibble(org_tree_a)
@@ -63,17 +93,10 @@ annotate_org_tree <- function(org_tree, org_data, paralogs) {
 
 copy_annotation <- function(org_tree_prunned, org_tree_full_a) {
   tab_org_tree_full <- as_tibble(org_tree_full_a)
-  View(tab_org_tree_full)
-  
-  View(as_tibble(org_tree_prunned))
   
   assigniment_tabtree <- tab_org_tree_full[tab_org_tree_full$label %in% as_tibble(org_tree_prunned)$label, -c(1,2,3)]
   
-  View(assigniment_tabtree)
-  
   org_tree_prunned2 <- full_join(org_tree_prunned, assigniment_tabtree, by='label')
-  
-  View(as_tibble(org_tree_prunned2))
   
   org_tree_prunned2
 }
