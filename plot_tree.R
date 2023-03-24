@@ -1,8 +1,21 @@
-plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
-                      taxalink=F, tips=NA, label_nodes=F, circle=NA, label_ancectors=NA, 
+
+
+plot_tree <- function(tree, 
+                      layout="circular",
+                      branch_length=T,
+                      tips=NA,
+                      color="filt_tax",
+                      label_nodes=T,
+                      bootstrap=T,
+                      taxalink=F, 
+                      domains=NA,
+                      context=NA,
+                      circle=NA, 
+                      label_ancectors=NA, 
                       collapse=NA, clade_labels=NA, 
-                      domains=NA, context=NA,
-                      width=100, height=100, legend="left",
+                      width=100,
+                      height=100,
+                      legend="left",
                       filename="tree.pdf") {
   
   COLOR_VECT = c("red", "#3cb44b", "blue",              # red green blue
@@ -13,6 +26,12 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
                       "#ffd8b1", "#fffac8", "#aaffc3",       # apricot, beige, mint
                       "#dcbeff", "cornflowerblue", "#bfef45", # lawander --- lime
                       "maroon", "steelblue")                 # lavender, cfb
+  
+  # branch length
+  if (branch_length == T) {
+    branch_length = "branch.length"
+  }
+  #
                       
   tab_tree <- as_tibble(tree)  # tabular form of the tree
   
@@ -40,8 +59,8 @@ plot_tree <- function(tree, layout, branch_length, aes_color="filt_tax",
     xlim = NULL
   }
   
-  p <- ggtree(tree, aes_string(color=aes_color), layout=layout, branch.length=branch_length, xlim=xlim)
-  if (aes_color == "filt_tax") {
+  p <- ggtree(tree, aes_string(color=color), layout=layout, branch.length=branch_length, xlim=xlim)
+  if (color == "filt_tax") {
     p <- p + scale_color_manual(values=colors)
     p <- p + guides(colour = guide_legend(ncol = 1)) + 
       guides(colour = guide_legend(ncol = 1))  # guide_legend(override.aes = list(size = 20), ncol = 1)) - like that to make legend elements bigger
