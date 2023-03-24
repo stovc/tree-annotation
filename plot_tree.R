@@ -248,9 +248,14 @@ plot_tree <- function(tree,
 }
 
 
-plot_org_tree <- function(tree, levels,
-                          width=100, height=100, legend='right',
+plot_org_tree <- function(tree, levels, 
+                          width='auto', 
+                          height='auto',
+                          legend='right',
                           filename='org_tree.svg') {
+  
+  RANKS = c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
+  
   # prepare heatmap data
   tab_tree <- as_tibble(tree)
   
@@ -265,26 +270,15 @@ plot_org_tree <- function(tree, levels,
   data_heatmap <- pivot_longer(data_heatmap, -1, names_to='paralog')
   data_heatmap <- data_heatmap[is.na(data_heatmap$value) == F,]
   
-  # plot tree
-  p <- ggtree(tree, aes_string(color='rank'), layout='rectangular', branch.length='none')
-  
-  print('constructed')
-  
-  # Apply theme
-  
   data_heatmap$x = unclass(factor(data_heatmap$paralog, levels=levels))
   mapping <- data_heatmap[duplicated(data_heatmap$paralog) == F, ]
   
-  y <- max(p$data$y)
+  # plot tree
+  p <- ggtree(tree, aes_string(color='rank'), layout='rectangular', branch.length='none')
   
-  # geom_text2(aes(label=paste(name)), size=4)
+  y <- max(p$data$y)  # no clue what it is...
   
-  size_scale = c(18, 14, 10, 7, 5, 3, 2)
-  names(size_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
-  
-  color_scale = c("darkred", "darkorange", "yellow4", "darkgreen", "darkcyan", "darkblue", "darkviolet")
-  names(color_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
-  
+  # add annotations
   p <- p + geom_label2(aes(subset=!isTip, label=name, size=rank), fill='grey95') +
     geom_facet(data = data_heatmap, geom = geom_tile,
                mapping = aes(x=x, fill=value),
@@ -292,33 +286,52 @@ plot_org_tree <- function(tree, levels,
                panel = 'Paralogs') +
     geom_facet(data = data_heatmap, geom = geom_text,
                mapping = aes(x=x, label=round(value,1)),
-               colour='white', size=4,
+               colour='white',
                panel = 'Paralogs') +
     geom_facet(data = mapping, geom = geom_text,
                mapping = aes(x=x, y=0, label=paralog),
-               colour='black', size=4,
-               panel = 'Paralogs') +
+               colour='black',
+               panel = 'Paralogs')
+  
+  p <- p + geom_tiplab(aes(label=name)) + xlim_tree(6)
+  
+  # apply scales
+  size_scale = c(14, 11, 9, 7, 5, 3, 2)
+  names(size_scale) <- RANKS
+  
+  color_scale = c("darkred", "darkorange", "yellow4", "darkgreen", "darkcyan", "darkblue", "darkviolet")
+  names(color_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
+  
+  p <- p +
     scale_fill_viridis_c(option="turbo") +
     scale_size_manual(values=size_scale) +
     scale_color_manual(values=color_scale)
   
-  p <- p + geom_tiplab(aes(label=name)) + xlim_tree(6)
-  
+  # Apply theme
   p <- p + theme(
     legend.key.size = unit(1, "cm"),
     legend.key.width = unit(1, "cm"),
     legend.text = element_text(size = 12), 
     legend.position=legend) + scale_x_ggtree()
   
-  print('themed')
+  # calculate height and width
+  if (width == 'auto') {
+    n_ranks = length(intersect(unique(tab_tree$rank), RANKS))
+    n_paralogs = nrow(mapping)
+    
+    tree_width = n_ranks * 22
+    heatmap_width = n_paralogs * 2
+    
+    width = tree_width + heatmap_width
+  }
   
-  print('heatmapped')
+  if (height == 'auto') {
+    n_tips = sum(isTip(tab_tree, tab_tree$node))
+    height = n_tips
+  }
   
-  facet_widths(p, widths=c(4,1))
-  
-  print('printed')
-  
+  # print and save
+  facet_widths(p, widths=c(tree_width, heatmap_width))
   ggsave(filename, width = width, height = height, units = "cm", limitsize = F)
   
-  print('saved')
 }
