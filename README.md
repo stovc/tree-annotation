@@ -90,3 +90,55 @@ plot_tree(tree, layout="inward_circular", taxalink=T, branch_length='none',
           width=50, height=33, filename="tree-taxalink.svg")
 ```
 ![image](imgs/README-tree-taxalink.png)
+
+Domain architecture
+```R
+plot_tree(tree, domains=domain_data, tips="product", 
+          layout="rectangular", branch_length="none", bootstrap=F,   # <-- params to make it not brake
+          filename="tree-domains.svg", height=200)
+```
+![image](imgs/README-tree-domains.png)
+
+
+Genome context
+```R
+plot_tree(tree, context=context_data, tips="product", 
+          layout="rectangular", branch_length="none", bootstrap=F, legend='none',  # <-- params to make it not brake
+          filename="tree-context.svg", height=200)
+```
+![image](imgs/README-tree-context.png)
+
+Assign paralogs
+```R
+paralog_df = data.frame(
+  node    = c(798,    690,     698,     760,    798,    778,    1002,    1012,  824), 
+  paralog = c("ClpB", "ClpC", "ClpC", "ClpCKB", "ClpB", "ClpK", "ClpC2", "ClpC3", "ClpB2")
+)
+tree <- assign_paralogs(tree, "ClpCKB", paralog_df)
+
+plot_tree(tree, color="paralog",
+          width=50, height=50, filename="tree-paralogs.svg")
+```
+![image](imgs/README-tree-para.png)
+
+Once paralogs are assigned, you can annotate organism trees
+```R
+species = annotate_org_tree(org_tree_full, org_data_full, tree)
+
+phylum = copy_annotation(org_tree_family, org_tree_full_a)
+class = copy_annotation(org_tree_class, org_tree_full_a)
+order = copy_annotation(org_tree_class, org_tree_full_a)
+family = copy_annotation(org_tree_class, org_tree_full_a)
+genus = copy_annotation(org_tree_class, org_tree_full_a)
+```
+
+And plot them at different taxonomic ranks
+```R
+plot_org_tree(phylum, filename='org_tree_phylum.svg')
+```
+![image](imgs/README-org_tree-phylum.png)
+
+```R
+plot_org_tree(class, filename='org_tree_class.svg')
+```
+![image](imgs/README-org_tree-class.png)
