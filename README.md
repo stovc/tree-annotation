@@ -119,7 +119,7 @@ tree <- assign_paralogs(tree, "ClpCKB", paralog_df)
 plot_tree(tree, color="paralog",
           width=50, height=50, filename="tree-paralogs.svg")
 ```
-![image](imgs/README-tree-para.png)
+![image](imgs/README-tree-paralogs.png)
 
 Once paralogs are assigned, you can annotate organism trees
 ```R
