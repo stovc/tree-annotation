@@ -1,76 +1,138 @@
-
+library(ggnewscale)
 
 plot_tree <- function(tree, 
                       layout="circular",
                       branch_length=T,
                       tips=NA,
-                      color="filt_tax",
+                      highlight=NA,
+                      label=NA,
+                      label_out=NA,
+                      bars=NULL,
+                      color="taxonomy",
                       label_nodes=T,
                       bootstrap=T,
-                      taxalink=F, 
-                      domains=NA,
-                      context=NA,
-                      circle=NA, 
-                      label_ancectors=NA, 
-                      collapse=NA, clade_labels=NA, 
+                      tax_start='all',
+                      tax_expand=NULL,
+                      taxalink=F,
+                      domains=NULL,
+                      context=NULL,
+                      circle=NA,
+                      label_ancectors=NA,
+                      collapse=NA, clade_labels=NA,
                       width=100,
                       height=100,
                       legend="left",
                       filename="tree.pdf") {
   
-  COLOR_VECT = c("red", "#3cb44b", "blue",              # red green blue
-                      "orange", "#808000", "lawngreen",      # orange olive lime
+  COLOR_VECT = c("red", "darkgreen", "blue",              # red green blue
+                      "orange", "#808000", "navy",      # orange olive lime
                       "#42d4f4", "#911eb4", "#f032e6",       # cyan purple magenta
-                      "#800000", "#469990", "navy",          # maroon teal navy
+                      "#800000", "#469990", "green",          # maroon teal navy
                       "#9A6324", "#eedd00", "#fabed4",       # brown yellow pink
                       "#ffd8b1", "#fffac8", "#aaffc3",       # apricot, beige, mint
                       "#dcbeff", "cornflowerblue", "#bfef45", # lawander --- lime
                       "maroon", "steelblue")                 # lavender, cfb
   
+  
   # branch length
   if (branch_length == T) {
     branch_length = "branch.length"
   }
-  #
-                      
+  
+  if (color == "taxonomy") {
+    tree <- calibrate_taxonomy(
+      tree, 
+      start=tax_start, 
+      expand=tax_expand, 
+      threshold=1)
+    
+    tab_tree <- as_tibble(tree)  # tabular form of the tree
+    
+    # construct color list
+    tax <- split(tab_tree$node, tab_tree$taxonomy)
+    tax <- tax[order(sapply(tax,length),decreasing=T)]
+    
+    u_tax <- names(tax)
+    u_tax <- u_tax[u_tax != "None"]
+    u_tax <- u_tax[u_tax != "Other"]
+    u_tax <- c(u_tax, "Other", "None")
+    
+    n_tax <- length(u_tax)
+    
+    #colors = c(COLOR_VECT, rep("gray", n_tax - 1 - length(COLOR_VECT)), "black")
+    named_colors = c(COLOR_VECT[1:(n_tax - 2)], 'gray', 'black')
+    
+    names(named_colors) = u_tax
+  }
+  
   tab_tree <- as_tibble(tree)  # tabular form of the tree
-  
-  # construct color list
-  tax <- split(tab_tree$node, tab_tree$filt_tax)
-  tax <- tax[order(sapply(tax,length),decreasing=T)]
-  
-  u_tax <- names(tax)
-  u_tax <- u_tax[u_tax != "None"]
-  u_tax <- u_tax[u_tax != "Other"]
-  u_tax <- c(u_tax, "Other", "None")
-  
-  n_tax <- length(u_tax)
-  
-  #colors = c(COLOR_VECT, rep("gray", n_tax - 1 - length(COLOR_VECT)), "black")
-  colors = c(COLOR_VECT[1:(n_tax - 1)], 'black')
-  colors = c(COLOR_VECT[1:(n_tax - 2)], 'gray', 'black')
-  names(colors) = u_tax
   
   # plot tree
   if (taxalink == T) {
-    xlim = 150
+    xlim = 170
+    hjust = -1
   }
   else {
     xlim = NULL
+    hjust = 0
   }
   
   p <- ggtree(tree, aes_string(color=color), layout=layout, branch.length=branch_length, xlim=xlim)
-  if (color == "filt_tax") {
-    p <- p + scale_color_manual(values=colors)
+  if (color == "taxonomy") {
+    p <- p + scale_color_manual(values=named_colors)
     p <- p + guides(colour = guide_legend(ncol = 1)) + 
       guides(colour = guide_legend(ncol = 1))  # guide_legend(override.aes = list(size = 20), ncol = 1)) - like that to make legend elements bigger
     print('MET')
   } else {
     print('NOT MET')
+    p <- p + scale_color_manual(values=COLOR_VECT)
   }
   
-  # Bootstraps
-  if (circle == "bootstrap") {
+  # Label tips
+  if (!is.na(tips)) {
+    p <- p + geom_tiplab(aes_string(label=tips), hjust=hjust, align=F, size=2)
+  }
+  
+  # Highlight
+  if (!is.na(highlight)) {
+    data=tab_tree[!is.na(tab_tree[,highlight]), c("node", highlight)]
+    p <- p + geom_hilight(data=data, aes(node=node), fill="grey95", color="black", alpha=.5)
+  }
+  
+  # Label
+  if (!is.na(label)) {
+    p <- p + geom_label2(aes(label=paralog_anc), color="black", fill='grey95')
+  }
+  
+  # Label_out
+  if (!is.na(label_out)) {
+    data=tab_tree[!is.na(tab_tree[,label_out]), c("node", label_out)]
+    p <- p + geom_cladelab(data=data, mapping = aes(node = node, label=paralog_anc), angle="auto")
+  }
+  
+  # Bars
+  if (!is.null(bars)) {
+    for (bar in bars) {
+      data=tab_tree[!is.na(tab_tree[,bar]), c("label", bar)]
+      colnames(data) <- c("label","value")
+      p <- p + geom_fruit(data=data,
+                          geom=geom_col,
+                          mapping=aes(y=label, x=value),
+                          axis.params=list(
+                            axis       = "x",
+                            text.size  = 1.8,
+                            hjust      = 1,
+                            vjust      = 0.5,
+                            nbreak     = 4,
+                            title=bar
+                          ),
+                          grid.params=list()
+      ) + new_scale_fill()
+    }
+  }
+  
+  # Bootstrap
+  if (bootstrap == T) {
     p <- p + geom_point2(aes(subset=!isTip, 
                              fill=cut(UFboot, c(0, 70, 90, 100))), 
                          shape=21, size=2, colour="black") +
@@ -81,23 +143,17 @@ plot_tree <- function(tree,
   }
   
   # Length
-  if (circle == "length") {
-    p <- p + geom_point2(aes(subset=isTip, fill=length), size=4, colour="black", shape=21) +
-      scale_fill_viridis_c()
-  }
+  #if (circle == "length") {
+  #  p <- p + geom_point2(aes(subset=isTip, fill=length), size=4, colour="black", shape=21) +
+  #    scale_fill_viridis_c()
+  #}
   
   #p <- p + geom_tippoint(
   #  aes(
-  #    color = filt_tax, size=factor(length)
+  #    color = taxonomy, size=factor(length)
   #    )
   #  )
   #geom_label(aes(label = UFboot, fill = UFboot), size=3, color="black")
-  
-  # Label tips
-  if (!is.na(tips)) {
-    #p <- p + geom_tiplab(aes_string(label=tips), color='black', angle=0, align=TRUE, linesize=.1)
-    p <- p + geom_tiplab(aes_string(label=tips), hjust=-.1, size=3, align=T)
-  }
   
   # Label nodes
   if (label_nodes == T) {
