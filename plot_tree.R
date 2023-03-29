@@ -241,41 +241,41 @@ plot_tree <- function(tree,
     }
     
     taxalink_map <- data.frame(from, to)
-    label_taxon <- tab_tree %>% select(label, filt_tax)
+    label_taxon <- tab_tree %>% select(label, taxonomy)
     names(label_taxon)[1] <- "from"
     taxalink_map <- merge(taxalink_map, label_taxon, by = "from")
     
     # add taxalink layer
     p <- p + geom_taxalink(data = taxalink_map, 
-                           mapping=aes(taxa1=from, taxa2=to, color=filt_tax), 
-                           alpha=0.4, size=0.3, curvature=1, ncp=10, outward=F)
+                           mapping=aes(taxa1=from, taxa2=to, color=taxonomy), 
+                           alpha=0.8, size=0.6, curvature=1, ncp=10, outward=F)
   }
   
   # Domain architecture
-  if (!is.na(domains)) {
-    p <- p + geom_facet(data = domain_data,
+  if (!is.null(domains)) {
+    p <- p + geom_facet(data = domains,
                         mapping = aes(xmin = start, xmax = end, 
                                       fill = domain),
                         geom = geom_motif,
                         panel = 'Domains',
-                        on = domains, label = 'domain', align = 'left',
+                        on = '.', label = 'domain', align = 'left',
                         arrowhead_width = grid::unit(0, "mm"),
                         arrowhead_height = grid::unit(3, "mm")) +
       xlim_tree(100)
   }
   
   # genome context
-  if (!is.na(context)) {
-    p <- p + geom_facet(data = context_data,
+  if (!is.null(context)) {
+    p <- p + geom_facet(data = context,
                         mapping = aes(xmin = start, xmax = end, 
                                       fill = motif, forward = strand),
                         geom = geom_motif, 
-                        panel = 'Genomic context',
-                        on = context, label = 'motif', align = 'left',
+                        panel = 'Genome context',
+                        on = '.', label = 'motif', align = 'left',
                         arrowhead_width = grid::unit(3, "mm"),
                         arrow_body_height = grid::unit(3, "mm"),
                         arrowhead_height = grid::unit(3, "mm")) + 
-      xlim_tree(100)
+      xlim_tree(50)
   }
   
   # Legend
@@ -287,7 +287,7 @@ plot_tree <- function(tree,
   
   p <- p + theme(legend.position=legend)
   
-  if (is.na(domains) & is.na(context)) {
+  if (is.null(domains) & is.null(context)) {
     print('printing plot')
     print(p)
   }
