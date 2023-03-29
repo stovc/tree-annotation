@@ -365,6 +365,37 @@ annotate_org_tree <- function(org_tree, org_data, prot_tree) {
 }
 
 
+traverse_mean <- function(tree) {
+  
+  assignment_df <- tree[, c(-2:-6)] %>% 
+    group_by(parent) %>% 
+    summarize(across(everything(), ~ mean(.x))) %>% 
+    ungroup()
+  
+  names(assignment_df)[1] = 'node'
+  
+  tree_outer <- tree %>% 
+    anti_join(assignment_df, by = "node")
+  
+  tree_inner <- tree[, 1:6] %>% 
+    right_join(assignment_df, by = "node")
+  
+  tree2 <- bind_rows(tree_outer, tree_inner)
+  
+  nas = sum(is.na(tree2[, -1:-6]))
+  
+  print(nas)
+  
+  if (nas > 15) {
+    tree2 <- traverse_mean(tree2)
+  } else {
+    tree2
+  }
+  
+  tree2
+}
+
+
 copy_annotation <- function(org_tree_prunned, org_tree_full_a) {
   tab_org_tree_full <- as_tibble(org_tree_full_a)
   
