@@ -51,8 +51,14 @@ annotate_tree <- function(tree, csv) {
   tree <- traverse_property(tree, csv, "gene")
   
   tree <- traverse_property(tree, csv, "assembly", recursive = F)
+  tree <- traverse_property(tree, csv, "protID", recursive = F)
+  
   tree <- traverse_property(tree, csv, "length", recursive = F)
   tree <- traverse_property(tree, csv, "taxid", recursive = F)
+  
+  tree <- traverse_property(tree, csv, "evalue", recursive = F)
+  tree <- traverse_property(tree, csv, "query_coverage", recursive = F)
+  tree <- traverse_property(tree, csv, "identity", recursive = F)
   
   tree
 }
