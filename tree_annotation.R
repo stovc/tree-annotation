@@ -271,6 +271,10 @@ assign_paralogs <- function(tree, protein, paralod_df) {
   d <- data.frame(node = nodes, paralog = protein)
   tab_tree <- full_join(tab_tree, d, by = "node")
   
+  paralod_anc_df <- paralod_df
+  colnames(paralod_anc_df) <- c("node", "paralog_anc")
+  tab_tree <- full_join(tab_tree, paralod_anc_df, by = "node")
+  
   # itereate over node:paralog_name pairs and assign them to the subtries
   for (i in 1:nrow(paralog_df)) {
     node = paralod_df[i, 'node']
@@ -284,7 +288,7 @@ assign_paralogs <- function(tree, protein, paralod_df) {
       mutate(paralog = ifelse(is.na(paralog.y), paralog.x, paralog.y)) %>% 
       select(-paralog.x, -paralog.y)
   }
-  tab_tree <- tab_tree[, c('node', 'paralog')]
+  tab_tree <- tab_tree[, c('node', 'paralog', 'paralog_anc')]
   tree <- full_join(tree, tab_tree, by='node')
   
   tree
