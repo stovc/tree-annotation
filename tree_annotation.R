@@ -223,23 +223,6 @@ assign_taxonomy <- function(tree, start, tax_vect) {
 }
 
 
-filter_genomes <- function(tree) {
-  
-  tab_tree <- as_tibble(tree)
-  
-  tab_tree <- tab_tree %>%
-    mutate(filt_genome = ifelse(taxon == 'None', NA, assembly))
-  
-  assignment_tree <- tab_tree
-  
-  assignment_tree <- assignment_tree %>%
-    select(node, filt_genome)
-  
-  tree <- full_join(tree, assignment_tree, by = "node")
-  tree
-}
-
-
 filter_taxonomy <- function(tree, threshold) {
   
   tab_tree <- as_tibble(tree)
@@ -259,43 +242,21 @@ filter_taxonomy <- function(tree, threshold) {
 }
 
 
-
-
-traverse_mean <- function(tree) {
+filter_genomes <- function(tree) {
   
-  assignment_df <- tree[, c(-2:-6)] %>% 
-    group_by(parent) %>% 
-    summarize(across(everything(), ~ mean(.x))) %>% 
-    ungroup()
+  tab_tree <- as_tibble(tree)
   
-  names(assignment_df)[1] = 'node'
+  tab_tree <- tab_tree %>%
+    mutate(filt_genome = ifelse(taxon == 'None', NA, assembly))
   
-  tree_outer <- tree %>% 
-    anti_join(assignment_df, by = "node")
+  assignment_tree <- tab_tree
   
-  tree_inner <- tree[, 1:6] %>% 
-    right_join(assignment_df, by = "node")
+  assignment_tree <- assignment_tree %>%
+    select(node, filt_genome)
   
-  tree2 <- bind_rows(tree_outer, tree_inner)
-  
-  nas = sum(is.na(tree2[, -1:-6]))
-  
-  print(nas)
-  
-  if (nas > 13) {
-    tree2 <- traverse_mean(tree2)
-  } else {
-    tree2
-  }
-  
-  tree2
+  tree <- full_join(tree, assignment_tree, by = "node")
+  tree
 }
-
-
-
-
-
-
 
 
 #' assign paralog annotation to all descendants of nodes from dataframe
