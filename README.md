@@ -3,7 +3,44 @@ WORK IN PROGRESS
 # tree-annotation
 R scripts to annotate protein phylogenetic trees with data, annotate species trees with protein phyletic patterns and plot
 
-# Usage
+# 1. Requirements
+1) Make sure to install
+```R
+library(tidyr)
+library(dplyr)
+library(readr)
+library(data.table)
+library(ggplot2)
+library(treeio)
+library(ggtree)
+library(gggenes)
+library(ape)
+library(ggtreeExtra)
+library(ggnewscale)
+```
+
+To install **ggtree** run in the R console
+```R
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ggtree")
+```
+
+To install **ggtreeExtra** run
+```R
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("ggtreeExtra")
+```
+
+For the rest try
+```R
+install.packages(package)
+```
+
+# 2. Usage
 Currently, this tool is designed for working with data produced by **pegp** tool (https://github.com/stovc/pegp). Perhaps in the future it will become more flexible.
 
 ## Preparation
