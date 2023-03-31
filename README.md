@@ -102,7 +102,7 @@ cluster_data <- read.csv("cluster_dict.csv")
 domain_data <- read.csv("domains.csv")
 
 # load genome context data
-context_data <- read_context_data()  # working directory should contain "genome_context.csv" file
+context_data <- read_context_data("genome_context.csv")  # working directory should contain "genome_context.csv" file
 
 # LOAD SPECIES TREES AND ANNOTATIONS
 org_tree_full <- read.tree(file="org_trees/org_tree_full.nwk")
