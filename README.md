@@ -115,6 +115,11 @@ org_tree_phylum <- read.tree(file="org_trees/org_tree_phylum.nwk")
 org_tree_data <- read_delim("org_trees/org_tree_full_data.csv", delim=';')
 ```
 
+4) Annotate the tree with data
+```R
+tree <- annotate_tree(tree, annotation)
+```
+
 ### Tree exploration
 
 #### Basics
