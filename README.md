@@ -115,6 +115,14 @@ org_tree_phylum <- read.tree(file="org_trees/org_tree_phylum.nwk")
 org_tree_data <- read_delim("org_trees/org_tree_full_data.csv", delim=';')
 ```
 
+3) Tweak your data if you need
+For example, replace "Candidatus" to "C." in org_tree_data
+
+```R
+library('stringr')
+org_tree_data$name <- str_replace(org_tree_data$name, "Candidatus", "C.")
+```
+
 4) Annotate the tree with data
 ```R
 tree <- annotate_tree(tree, annotation)
