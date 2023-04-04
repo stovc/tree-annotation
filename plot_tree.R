@@ -90,7 +90,7 @@ plot_tree <- function(tree,
   
   # Label tips
   if (!is.na(tips)) {
-    p <- p + geom_tiplab(aes_string(label=tips), hjust=hjust, align=F, size=2)
+    p <- p + geom_tiplab(aes_string(label=tips), hjust=hjust, align=T, size=2)
   }
   
   # Highlight
