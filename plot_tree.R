@@ -246,9 +246,9 @@ plot_tree <- function(tree,
   }
   
   # Taxalink
-  if (taxalink == T) {
+  if (!is.null(link)) {
     # prepare taxa link
-    genomes <- split(tab_tree$label, tab_tree$filt_genome)
+    genomes <- split(tab_tree$label, tab_tree[, link])
     genome_names <- names(genomes)
     
     from = c()
