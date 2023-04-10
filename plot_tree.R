@@ -278,14 +278,29 @@ plot_tree <- function(tree,
   
   # Domain architecture
   if (!is.null(domains)) {
-    p <- p + geom_facet(data = domains,
-                        mapping = aes(xmin = start, xmax = end, 
-                                      fill = domain),
-                        geom = geom_motif,
-                        panel = 'Domains',
-                        on = '.', label = 'domain', align = 'left',
-                        arrowhead_width = grid::unit(0, "mm"),
-                        arrowhead_height = grid::unit(3, "mm")) +
+    View(domains)
+    protein_df <- domains %>% filter(domain == "_" | domain == ".")
+    View(protein_df)
+    domain_df <- domains %>% filter(domain != "_")
+    View(domain_df)
+    
+    p <- p + 
+      geom_facet(data = protein_df,
+                 mapping = aes(xmin = start, xmax = end, fill=domain),
+                 geom = geom_motif,
+                 panel = 'Domains',
+                 on = '.', label='domain', align = 'left',
+                 arrowhead_width = grid::unit(0, "mm"),
+                 arrow_body_height = grid::unit(2, "mm"),
+                 arrowhead_height = grid::unit(2, "mm")
+                 ) + scale_fill_manual(values=c("gray", "gray")) + new_scale_fill() +
+      geom_facet(data = domain_df,
+                 mapping = aes(xmin = start, xmax = end, fill=domain),
+                 geom = geom_motif,
+                 panel = 'Domains',
+                 on = '.', label = 'domain', align = 'left',
+                 arrowhead_width = grid::unit(0, "mm"),
+                 arrowhead_height = grid::unit(3, "mm")) +
       xlim_tree(100)
   }
   
@@ -338,7 +353,7 @@ plot_org_tree <- function(tree, levels,
                           legend='right',
                           filename='org_tree.svg') {
   
-  RANKS = c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
+  RANKS = c("species", "genus", "family", "order", "class", 'phylum', 'superkingdom')
   
   # prepare heatmap data
   tab_tree <- as_tibble(tree)
@@ -373,15 +388,26 @@ plot_org_tree <- function(tree, levels,
                colour='white',
                panel = 'Paralogs') +
     geom_facet(data = mapping, geom = geom_text,
+               mapping = aes(x=x, label=paralog), 
+               y=max(y) + 0.75,
+               colour='black',
+               panel = 'Paralogs') +
+    geom_facet(data = mapping, geom = geom_text,
                mapping = aes(x=x, y=0, label=paralog),
                colour='black',
-               panel = 'Paralogs')
-  
-  p <- p + geom_tiplab(aes(label=name)) + xlim_tree(6)
+               panel = 'Paralogs') +
+    geom_tiplab(aes(label=name)) + 
+    xlim_tree(6)
   
   # apply scales
-  size_scale = c(14, 11, 9, 7, 5, 3, 2)
-  names(size_scale) <- RANKS
+  
+  present_ranks = intersect(RANKS, tab_tree$rank)  
+  
+  size_scale = c(5, 7, 9, 11, 13, 15, 17)
+  size_scale = size_scale[1:length(present_ranks)]
+  
+  print(present_ranks)
+  names(size_scale) <- present_ranks
   
   color_scale = c("darkred", "darkorange", "yellow4", "darkgreen", "darkcyan", "darkblue", "darkviolet")
   names(color_scale) <- c('superkingdom', 'phylum', "class", "order", "family", "genus", "species")
