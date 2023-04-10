@@ -3,7 +3,7 @@ library(ggnewscale)
 plot_tree <- function(tree, 
                       layout="circular",
                       branch_length=T,
-                      tips=NA,
+                      tips=NULL,
                       highlight=NA,
                       label=NA,
                       label_out=NA,
@@ -13,7 +13,7 @@ plot_tree <- function(tree,
                       bootstrap=T,
                       tax_start='all',
                       tax_expand=NULL,
-                      taxalink=F,
+                      link=NULL,
                       domains=NULL,
                       context=NULL,
                       circle=NA,
@@ -22,7 +22,8 @@ plot_tree <- function(tree,
                       width=100,
                       height=100,
                       legend="left",
-                      filename="tree.pdf") {
+                      filename="tree.pdf",
+                      title="") {
   
   COLOR_VECT = c("red", "darkgreen", "blue",              # red green blue
                       "orange", "#808000", "navy",      # orange olive lime
@@ -33,12 +34,18 @@ plot_tree <- function(tree,
                       "#dcbeff", "cornflowerblue", "#bfef45", # lawander --- lime
                       "maroon", "steelblue")                 # lavender, cfb
   
+  # title construction constants
+  BRANCH_LENGTH_FALSE="-branch_length=F"
   
   # branch length
   if (branch_length == T) {
     branch_length = "branch.length"
+  } 
+  else {
+    title <- paste(title, BRANCH_LENGTH_FALSE)
   }
   
+  # reshaping tree
   if (color == "taxonomy") {
     tree <- calibrate_taxonomy(
       tree, 
@@ -112,6 +119,11 @@ plot_tree <- function(tree,
   
   # Bars
   if (!is.null(bars)) {
+    # update title
+    str_to_add <- paste0("-bars=[", paste(bars, collapse=", "), "]")
+    title <- paste(title, str_to_add)
+    
+    # iterate collumns to be added as barplots
     for (bar in bars) {
       data=tab_tree[!is.na(tab_tree[,bar]), c("label", bar)]
       colnames(data) <- c("label","value")
@@ -286,6 +298,9 @@ plot_tree <- function(tree,
   #  legend.position=legend)
   
   p <- p + theme(legend.position=legend)
+  
+  # Title
+  p <- p + ggtitle(title)
   
   if (is.null(domains) & is.null(context)) {
     print('printing plot')
