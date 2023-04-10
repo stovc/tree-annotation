@@ -40,25 +40,26 @@ read_context_data <- function(path) {
 # TREE ANNOTATION
 
 annotate_tree <- function(tree, csv) {
-  tree <- traverse_property(tree, csv, "phylum")
-  tree <- traverse_property(tree, csv, "class")
-  tree <- traverse_property(tree, csv, "order")
-  tree <- traverse_property(tree, csv, "family")
-  tree <- traverse_property(tree, csv, "genus")
-  tree <- traverse_property(tree, csv, "species")
   
-  tree <- traverse_property(tree, csv, "product")
-  tree <- traverse_property(tree, csv, "gene")
+  to_traverse = c("phylum", "class", "order", "family", "genus", "species", "product")
+  
+  for (property in to_traverse) {
+    print(paste("Traverse", property))
+    tree <- traverse_property(tree, csv, property)
+  }
   
   tree <- traverse_property(tree, csv, "assembly", recursive = F)
   tree <- traverse_property(tree, csv, "protID", recursive = F)
   
-  tree <- traverse_property(tree, csv, "length", recursive = F)
   tree <- traverse_property(tree, csv, "taxid", recursive = F)
   
-  tree <- traverse_property(tree, csv, "evalue", recursive = F)
+  tree <- traverse_property(tree, csv, "lg_evalue", recursive = F)
   tree <- traverse_property(tree, csv, "query_coverage", recursive = F)
-  tree <- traverse_property(tree, csv, "identity", recursive = F)
+  
+  tree <- traverse_property(tree, csv, "gene", recursive = F)
+  
+  # tree <- traverse_property(tree, csv, "length", recursive = F)
+  # tree <- traverse_property(tree, csv, "identity", recursive = F)
   
   tree
 }
