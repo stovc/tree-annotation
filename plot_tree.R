@@ -72,10 +72,23 @@ plot_tree <- function(tree,
     names(named_colors) = u_tax
   }
   
+  if (!is.null(tips)) {
+    label  <- 
+      print(label)
+    
+    assign_df <- tab_tree %>% 
+      mutate(tip_lab = 
+               do.call(paste, c(tab_tree[tips], sep = "|"))
+      ) %>% 
+      select("node", "tip_lab")
+    
+    tree <- full_join(tree, assign_df, by="node")
+  }
+  
   tab_tree <- as_tibble(tree)  # tabular form of the tree
   
   # plot tree
-  if (taxalink == T) {
+  if (!is.null(link)) {
     xlim = 170
     hjust = -1
   }
@@ -96,8 +109,8 @@ plot_tree <- function(tree,
   }
   
   # Label tips
-  if (!is.na(tips)) {
-    p <- p + geom_tiplab(aes_string(label=tips), hjust=hjust, align=T, size=2)
+  if (!is.null(tips)) {
+    p <- p + geom_tiplab(aes(label=tip_lab), hjust=hjust, align=T, size=2)
   }
   
   # Highlight
